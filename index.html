@@ -1,12 +1,21 @@
+<!--
+
+How to play:
+You have 15 seconds time to click as many red squares as possible. 
+Clicking green square starts new round
+
+-->
+
 <!DOCTYPE html>
 <html>
 <head>
-
+	
 </head>
 <body>
 
 <div id = "game">
-	<H1> Click the Square </H1>
+
+	<h5> Click the squares! </h5>
 	<canvas id="myCanvas" width="400" height="250"
 	style="border:1px solid #c3c3c3;">
 	</canvas>
@@ -20,6 +29,7 @@
 
 <script>
 
+	//init game
 	var points = 0;
 	var timer = 0;
 	var timerExist = 0;
@@ -36,11 +46,13 @@
 	rectangle = {top: 150, left: 150, width: 20, height: 20, color: "#00FF00"};
 	renderRectangle(rectangle.color);
 	
+	//add click event for canvas
 	canvas.addEventListener('click',function(evt){
 		var x = evt.clientX - myCanvas.offsetLeft;
 		var y = evt.clientY - myCanvas.offsetTop;
 		if (y > rectangle.top && y < rectangle.top + rectangle.height 
             && x > rectangle.left && x < rectangle.left + rectangle.width) {
+			//clicking green rectangle starts game
 			if (rectangle.color === "#00FF00")
 			{
 				points = 0;
@@ -54,6 +66,7 @@
 				}
 
 			}
+			//clicking red rectangle adds points and creates new one
 			else if (rectangle.color === "#FF0000")
 			{
 				generateNewRectangle("#FF0000");
@@ -62,6 +75,7 @@
         }		
 	},false);
 	
+	//changes rectangles position inside canvas
 	function generateNewRectangle(clr)
 	{	
 		var randLeft = Math.floor((Math.random() * (myCanvas.width - rectangle.width)));
@@ -69,10 +83,11 @@
 		rectangle.top = randTop;
 		rectangle.left = randLeft;
 		rectangle.color = clr;
+		
 		renderRectangle(rectangle.color);
-
 	}
 	
+	//renders new rectangle to canvas
 	function renderRectangle(color)
 	{
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -86,11 +101,13 @@
 		renderScoreTime();
 	}
 	
+	//updates score/time text
 	function renderScoreTime()
 	{
 		document.getElementById("points").innerHTML = "Points: " + points + " Time: " + timer;
 	}
 	
+	//reduces timer and sets new event to happen after 1s
 	function updateTime()
 	{
 		timer--;
@@ -107,6 +124,7 @@
 		}
 	}
 	
+	//gameover, resets green rectangle to start a new game and submits score
 	function gameOver()
 	{
 		rectangle = {top: 150, left: 150, width: 20, height: 20, color: "#00FF00"};
