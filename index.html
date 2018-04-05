@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+</head>
+<body>
+
+<div id = "game">
+	
+	<canvas id="myCanvas" width="400" height="250"
+	style="border:1px solid #c3c3c3;">
+	</canvas>
+	<h5 id="points"> Points: 0 Time: 0 </h5>
+	<div>
+		<button id="save"> Save Game </button>
+		<button id="load"> Load Game </button>
+	</div>
+	
+</div>	
+
+<script>
+
+	var points = 0;
+	var timer = 0;
+	var timerExist = 0;
+	
+	sendSettings();
+	document.getElementById("save").addEventListener("click", saveGame());
+	document.getElementById("load").addEventListener("click", requestLoad());
+	
+	var canvas = document.getElementById("myCanvas"),
+	rectangle = {};
+	
+	var ctx = canvas.getContext("2d");
+	
+	rectangle = {top: 150, left: 150, width: 20, height: 20, color: "#00FF00"};
+	renderRectangle(rectangle.color);
+	
+	canvas.addEventListener('click',function(evt){
+		var x = evt.clientX - myCanvas.offsetLeft;
+		var y = evt.clientY - myCanvas.offsetTop;
+		if (y > rectangle.top && y < rectangle.top + rectangle.height 
+            && x > rectangle.left && x < rectangle.left + rectangle.width) {
+			if (rectangle.color === "#00FF00")
+			{
+				points = 0;
+				generateNewRectangle("#FF0000");
+				timer = 15;
+				renderScoreTime();
+				if (timerExist === 0)
+				{
+					timerExist = 1;
+					setTimeout(updateTime, 1000);
+				}
+
+			}
+			else if (rectangle.color === "#FF0000")
+			{
+				generateNewRectangle("#FF0000");
+				addPoints();
+			}		
+        }		
+	},false);
+	
+	function generateNewRectangle(clr)
+	{	
+		var randLeft = Math.floor((Math.random() * (myCanvas.width - rectangle.width)));
+		var randTop = Math.floor((Math.random() * (myCanvas.height - rectangle.height)));
+		rectangle.top = randTop;
+		rectangle.left = randLeft;
+		rectangle.color = clr;
+		renderRectangle(rectangle.color);
+
+	}
+	
+	function renderRectangle(color)
+	{
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.fillStyle = color;
+		ctx.fillRect(rectangle.left,rectangle.top,rectangle.width,rectangle.height);
+	}
+	
+	function addPoints()
+	{
+		points = points + 10;
+		renderScoreTime();
+	}
+	
+	function renderScoreTime()
+	{
+		document.getElementById("points").innerHTML = "Points: " + points + " Time: " + timer;
+	}
+	
+	function updateTime()
+	{
+		timer--;
+		renderScoreTime();
+		if (timer > 0)
+		{	
+			timerExist = 1;
+			setTimeout(updateTime, 1000);
+		}
+		else 
+		{	
+			timerExist = 0;
+			gameOver();
+		}
+	}
+	
+	function gameOver()
+	{
+		rectangle = {top: 150, left: 150, width: 20, height: 20, color: "#00FF00"};
+		renderRectangle(rectangle.color);
+		submitScore();
+	}
+	
+	function submitScore()
+	{	
+		var message = {
+			messageType: "SCORE",
+			score: points
+		};
+
+		window.parent.postMessage(message, "*");
+	}
+	
+	function saveGame() 
+	{
+		var message = {
+			messageType: "SAVE",
+			gameState: {
+				score: points,
+				timeleft: timer
+			}
+		};
+		
+		window.parent.postMessage(message, "*");
+	}
+	
+	function requestLoad() {
+		var message = {
+			messageType: "LOAD_REQUEST",
+		};
+		
+		window.parent.postMessage(message, "*");
+	}
+	
+	window.addEventListener("message", function(parameter) {
+		var message = parameter.data;
+		if (message.messageType === "LOAD") 
+		{
+			loadGame(message.gameState);
+		} 
+		else if (message.messageType === "ERROR") 
+		{
+			console.log("Error: "+msg.info);
+		}
+	}, false);
+	
+	function loadGame(gameState)
+	{
+		timer = gameState.timeleft;
+		points = gameState.score;
+		generateNewRectangle();
+		if(timerExist === 0)
+		{
+			timerExist = 1;
+			setTimeout(updateTime, 1000);
+		}
+	}
+	
+	function sendSettings() {
+		var message = 
+		{
+			messageType: "SETTING",
+			options: {
+				"width": document.getElementById("game").offsetWidth+10,
+				"height": document.getElementById("game").offsetHeight+10
+			}
+		};
+		window.parent.postMessage(message, "*");
+	}
+	
+</script>
+
+</body>
+</html>
