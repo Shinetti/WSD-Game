@@ -9,7 +9,7 @@ Clicking green square starts new round
 <!DOCTYPE html>
 <html>
 <head>
-	
+	<script type="text/javascript" src="lib/jquery-3.2.1.min.js"></script>
 </head>
 <body>
 
@@ -34,7 +34,7 @@ Clicking green square starts new round
 	var timer = 0;
 	var timerExist = 0;
 	
-	sendSettings();
+	$( document ).ready(sendSettings());
 	document.getElementById("save").addEventListener("click", saveGame());
 	document.getElementById("load").addEventListener("click", requestLoad());
 	
@@ -193,7 +193,7 @@ Clicking green square starts new round
 			messageType: "SETTING",
 			options: {
 				"width": document.getElementById("game").offsetWidth+10,
-				"height": document.getElementById("game").offsetHeight+10
+				"height": document.getElementById("game").offsetHeight+50
 			}
 		};
 		window.parent.postMessage(message, "*");
